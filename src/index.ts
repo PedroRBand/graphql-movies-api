@@ -1,4 +1,5 @@
 import express from 'express'
+import { Request, Response } from 'express'
 import { ApolloServer } from 'apollo-server-express'
 import typeDefs from './graphql/typeDefs.js'
 import resolvers from './graphql/resolvers.js'
@@ -22,7 +23,7 @@ const startServer = async () => {
       return { user }
     },
     formatResponse: (res, req) => {
-      const acceptHeader = req.request.http.headers.get('accept') || ''
+      const acceptHeader = req.request?.http?.headers.get('accept') || ''
 
       if(acceptHeader.includes('application/graphql-response+json')) {
         logger.info('Header testing')
@@ -34,7 +35,7 @@ const startServer = async () => {
   await server.start()
   server.applyMiddleware({ app })
 
-  app.get('/', (req, res) => {
+  app.get('/', (req: Request, res: Response) => {
     res.send('GraphQL API running...')
   });
 

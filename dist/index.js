@@ -28,7 +28,8 @@ const startServer = () => __awaiter(void 0, void 0, void 0, function* () {
             return { user };
         }),
         formatResponse: (res, req) => {
-            const acceptHeader = req.request.http.headers.get('accept') || '';
+            var _a, _b;
+            const acceptHeader = ((_b = (_a = req.request) === null || _a === void 0 ? void 0 : _a.http) === null || _b === void 0 ? void 0 : _b.headers.get('accept')) || '';
             if (acceptHeader.includes('application/graphql-response+json')) {
                 logger.info('Header testing');
             }

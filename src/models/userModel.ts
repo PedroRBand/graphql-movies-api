@@ -1,7 +1,8 @@
 import mongoose from "mongoose"
 import bcrypt from "bcryptjs"
 
-interface IUser extends Document {
+export interface IUser extends Document {
+    _id: string,
     username: string,
     password: string,
     comparePassword: (userPassword: string) => Promise<boolean>,
