@@ -22,6 +22,7 @@ const startServer = async () => {
       const user = await getUserFromToken(req as any)
       return { user }
     },
+    introspection: true,
     formatResponse: (res, req) => {
       const acceptHeader = req.request?.http?.headers.get('accept') || ''
 
