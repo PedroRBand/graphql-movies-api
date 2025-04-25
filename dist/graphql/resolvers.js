@@ -23,9 +23,12 @@ import MovieModel from '../models/moviesModel.js';
 import { generateToken } from '../utils/auth.js';
 import { checkRole } from '../utils/permissions.js';
 import logger from '../utils/logger.js';
+const errorNoId = (id) => {
+    logger.error(`Movie not found with ID: ${id}`);
+    throw new Error(`Movie with ID ${id} not found.`);
+};
 const resolvers = {
     Query: {
-        /* getMovies: async () => await MovieModel.find(), */
         getMovies: (_1, _a) => __awaiter(void 0, [_1, _a], void 0, function* (_, { page, limit, sortBy, sortOrder }) {
             logger.info(`Fetching movies: page=${page}, limit=${limit}, sortBy=${sortBy}, sortOrder=${sortOrder}`);
             const skip = (page - 1) * limit;
@@ -43,8 +46,7 @@ const resolvers = {
         getMovie: (_1, _a) => __awaiter(void 0, [_1, _a], void 0, function* (_, { id }) {
             const movie = yield MovieModel.findById(id);
             if (!movie) {
-                logger.error(`Movie not found with ID: ${id}`);
-                throw new Error(`No movie with id ${id} found`);
+                errorNoId(id);
             }
             return movie;
         }),
@@ -88,11 +90,17 @@ const resolvers = {
             var user = _b.user;
             checkRole(user, ['admin']);
             const movie = yield MovieModel.findByIdAndUpdate(id, updates, { new: true });
+            if (!movie) {
+                errorNoId(id);
+            }
             return movie;
         }),
         deleteMovie: (_1, _a, _b) => __awaiter(void 0, [_1, _a, _b], void 0, function* (_, { id }, { user }) {
             checkRole(user, ['admin']);
-            yield MovieModel.findByIdAndDelete(id);
+            const movie = yield MovieModel.findByIdAndDelete(id);
+            if (!movie) {
+                errorNoId(id);
+            }
             return `Movie with ID ${id} deleted.`;
         })
     },

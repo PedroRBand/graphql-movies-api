@@ -27,6 +27,7 @@ const startServer = () => __awaiter(void 0, void 0, void 0, function* () {
             const user = yield getUserFromToken(req);
             return { user };
         }),
+        introspection: true,
         formatResponse: (res, req) => {
             var _a, _b;
             const acceptHeader = ((_b = (_a = req.request) === null || _a === void 0 ? void 0 : _a.http) === null || _b === void 0 ? void 0 : _b.headers.get('accept')) || '';
@@ -40,6 +41,15 @@ const startServer = () => __awaiter(void 0, void 0, void 0, function* () {
     server.applyMiddleware({ app });
     app.get('/', (req, res) => {
         res.send('GraphQL API running...');
+    });
+    app.use((err, req, res, next) => {
+        logger.error(`Unhandled error: ${err.message}`);
+        const statusCode = err.status || 500;
+        const message = err.message || 'Internal Server Error';
+        res.status(statusCode).json({
+            error: true,
+            message: message,
+        });
     });
     const port = process.env.PORT || 5000;
     app.listen(port, () => {

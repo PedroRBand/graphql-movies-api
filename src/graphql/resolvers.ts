@@ -12,9 +12,13 @@ type Movie = {
   genres: string[]
 }
 
+const errorNoId = (id: string) => {
+  logger.error(`Movie not found with ID: ${id}`)
+  throw new Error(`Movie with ID ${id} not found.`)
+} 
+
 const resolvers = {
   Query: {
-    /* getMovies: async () => await MovieModel.find(), */
     getMovies: async (
       _: any,
       {page, limit, sortBy, sortOrder}: any
@@ -36,15 +40,16 @@ const resolvers = {
         totalPages
       }
     },
+
     getMovie: async (_: any, { id }: { id: string }) => {
       const movie = await MovieModel.findById(id)
       if(!movie) {
-        logger.error(`Movie not found with ID: ${id}`)
-        throw new Error(`No movie with id ${id} found`)
+        errorNoId(id)
       }
 
       return movie
     },
+
     getCurrentUser: async(_: any, __: any, {user}: any) => user
   },
 
@@ -65,6 +70,7 @@ const resolvers = {
       const token = generateToken(newUser)
       return { ...newUser.toObject(), token }
     },
+
     login: async (_: any, { username, password }: any) => {
       const user = await UserModel.findOne({ username })
       if (!user) throw new Error('Invalid credentials')
@@ -75,20 +81,32 @@ const resolvers = {
       const token = generateToken(user)
       return { ...user.toObject(), token }
     },
+
     addMovie: async (_: any, args: Movie, { user }: any) => {
       if (!user) throw new Error('Operation unauthorized.')
       const movie = new MovieModel(args)
       await movie.save()
+      
       return movie
     },
+
     updateMovie: async (_: any, { id, ...updates }: Movie, { user }: any) => {
       checkRole(user, ['admin'])
       const movie = await MovieModel.findByIdAndUpdate(id, updates, { new: true })
+      if(!movie) {
+        errorNoId(id)
+      }
+
       return movie
     },
+
     deleteMovie: async (_: any, { id }: { id: string }, { user }: any) => {
       checkRole(user, ['admin'])
-      await MovieModel.findByIdAndDelete(id)
+      const movie = await MovieModel.findByIdAndDelete(id)
+      if(!movie) {
+        errorNoId(id)
+      }
+
       return `Movie with ID ${id} deleted.`
     }
   },
