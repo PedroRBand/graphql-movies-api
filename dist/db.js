@@ -17,7 +17,8 @@ const connectDB = () => __awaiter(void 0, void 0, void 0, function* () {
         logger.info('MongoDB connected successfully');
     }
     catch (err) {
-        logger.error('MongoDB connection error:', err.message);
+        const error = err;
+        logger.error('MongoDB connection error:', error.message);
         process.exit(1); // Exit process on failure
     }
 });

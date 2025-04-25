@@ -1,10 +1,10 @@
 import jwt from "jsonwebtoken"
 import { Request } from "express"
-import UserModel from "../models/userModel.js"
+import UserModel, { IUser } from "../models/userModel.js"
 
 const TOKEN_SECRET = process.env.TOKEN_SECRET || 'itdidntwork'
 
-export const generateToken = (user) => {
+export const generateToken = (user: IUser) => {
     return jwt.sign(
         {id: user._id, username: user.username, role: user.role},
         TOKEN_SECRET,
